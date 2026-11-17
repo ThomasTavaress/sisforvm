@@ -10,11 +10,14 @@ const seeded = seed(db, {
   demo: process.env.SEED_DEMO !== '0',
   demoPassword: process.env.DEMO_PASSWORD,
 });
-if (seeded.adminPasswordGenerated) {
-  // Senha inicial gerada aleatoriamente: mostrada uma única vez e gravada em data/ (fora do git).
-  const msg = `Usuário: ${process.env.ADMIN_USER || 'admin'}\nSenha inicial: ${seeded.adminPasswordGenerated}\nTroque a senha em "Minha conta" após o primeiro acesso e apague este arquivo.\n`;
+if (seeded.adminPasswordGenerated || seeded.demoPasswordGenerated) {
+  // Senhas iniciais geradas aleatoriamente: gravadas em data/ (fora do git).
+  let msg = '';
+  if (seeded.adminPasswordGenerated) msg += `Usuário: ${process.env.ADMIN_USER || 'admin'}\nSenha inicial: ${seeded.adminPasswordGenerated}\n`;
+  if (seeded.demoPasswordGenerated) msg += `Cliente demo — usuário: fast\nSenha: ${seeded.demoPasswordGenerated}\n`;
+  msg += 'Troque as senhas em "Minha conta" após o primeiro acesso e apague este arquivo.\n';
   writeFileSync('data/admin-inicial.txt', msg);
-  console.log('\n=== Administrador criado — credenciais em data/admin-inicial.txt ===\n');
+  console.log('\n=== Credenciais iniciais criadas — veja data/admin-inicial.txt ===\n');
 }
 
 const app = createApp(db, { staticDir: 'dist/client', secureCookies: process.env.COOKIE_SECURE === '1' });

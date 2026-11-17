@@ -20,7 +20,7 @@ Abra http://localhost:3000. O `npm start` compila o front-end e sobe o servidor.
 
 ### Primeiro acesso
 - **Admin FORVM:** na primeira execução, o usuário `admin` é criado com uma senha aleatória, gravada em `data/admin-inicial.txt`. Entre, troque a senha em **Conta** e apague o arquivo. Também é possível definir a senha antes da primeira execução com as variáveis `ADMIN_USER` e `ADMIN_PASSWORD`.
-- **Cliente de demonstração:** empresa "Fast Importadora (DEMO)", usuário `fast`, senha `fast2026demo`. Para não criar o demo, use `SEED_DEMO=0`. O admin pode desativar ou excluir a empresa demo.
+- **Cliente de demonstração:** empresa "Fast Importadora (DEMO)", usuário `fast`, senha aleatória, gravada em `data/admin-inicial.txt` junto com a do admin (ou defina com `DEMO_PASSWORD`). Para não criar o demo, use `SEED_DEMO=0`. O admin pode desativar ou excluir a empresa demo.
 
 ### Variáveis de ambiente
 `PORT` (padrão 3000) · `DB_PATH` (padrão `data/sisforvm.db`) · `COOKIE_SECURE=1` (atrás de HTTPS) · `ADMIN_USER` / `ADMIN_PASSWORD` · `SEED_DEMO` · `DEMO_PASSWORD`

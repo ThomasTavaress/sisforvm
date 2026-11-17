@@ -11,8 +11,8 @@ export interface SeedOptions {
 }
 
 /** Dados iniciais. Só insere o que estiver vazio; seguro rodar a cada inicialização. */
-export function seed(db: DatabaseSync, opts: SeedOptions = {}): { adminPasswordGenerated?: string } {
-  const out: { adminPasswordGenerated?: string } = {};
+export function seed(db: DatabaseSync, opts: SeedOptions = {}): { adminPasswordGenerated?: string; demoPasswordGenerated?: string } {
+  const out: { adminPasswordGenerated?: string; demoPasswordGenerated?: string } = {};
   const count = (sql: string) => Number((db.prepare(sql).get() as Row).c);
 
   if (!count("SELECT COUNT(*) c FROM users WHERE role='admin'")) {
@@ -65,7 +65,12 @@ export function seed(db: DatabaseSync, opts: SeedOptions = {}): { adminPasswordG
     const r = db.prepare(`INSERT INTO clients (company_name,tax_regime,city,state,cnpj,sigla,despacho_brl,honorarios_pct,honorarios_min,notes)
       VALUES ('Fast Importadora Ltda (DEMO)','LUCRO_REAL','Joinville','SC','00.000.000/0001-00','FAS',950,1,950,'Cliente de demonstração: honorários 1% da base do ICMS, mínimo R$ 950; despacho R$ 950')`).run();
     const cid = Number(r.lastInsertRowid);
-    db.prepare("INSERT INTO users (username,password_hash,name,role,client_id) VALUES ('fast',?,'Usuário Fast','cliente',?)").run(hashPassword(opts.demoPassword || 'fast2026demo'), cid);
+    let demoPw = opts.demoPassword;
+    if (!demoPw) {
+      demoPw = crypto.randomBytes(9).toString('base64url');
+      out.demoPasswordGenerated = demoPw;
+    }
+    db.prepare("INSERT INTO users (username,password_hash,name,role,client_id) VALUES ('fast',?,'Usuário Fast','cliente',?)").run(hashPassword(demoPw), cid);
     const fp = db.prepare(`INSERT INTO freight_profiles (client_id,label,modal,origin_country,origin_detail,dest_detail,incoterm,currency,rate,min_charge,origin_fees,dest_fees_brl,transit_days)
       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`);
     fp.run(cid, 'China Aéreo FOB', 'AEREO', 'China', 'Aeroporto de Shenzhen', 'Aeroporto de Navegantes', 'FOB', 'USD', 6.5, 150, 0, 1800, '5-8');
