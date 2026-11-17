@@ -1,0 +1,143 @@
+version: 1
+last_updated: 2026-06-22
+owner: FORVM
+purpose: >-
+  Base padrão de condições de cálculo do ICMS para simulações de importação por
+  Conta e Ordem em Santa Catarina, com foco inicial nas parametrizações do TTD 410.
+usage_rules:
+  - Sempre apresentar as condições cadastradas ao operador antes do cálculo final.
+  - Sempre permitir ajuste manual dos campos editáveis antes de consolidar a memória de cálculo.
+  - Nunca tratar esta base como substituta de validação humana.
+  - Quando houver divergência entre documento, regra fiscal e parametrização escolhida, destacar a divergência.
+  - Registrar no relatório final qual condição foi selecionada e quais campos foram alterados manualmente.
+editable_fields:
+  - finalidade_importacao
+  - regime_tributario_cliente
+  - aliquota_efetiva_icms
+  - divisor_icms
+  - aliquota_credito_icms_saida
+  - incluir_ipi_na_base_icms
+  - calcular_diferenca_ipi
+  - observacoes_operacionais
+  - observacoes_fiscais
+conditions:
+  - id: ttd410_revenda_normal
+    label: TTD 410 - Revenda Normal
+    status: active
+    applies_when:
+      finalidade_importacao:
+        - Revenda
+    defaults:
+      finalidade_importacao: Revenda
+      aliquota_efetiva_icms: 0.014
+      divisor_icms: 0.96
+      aliquota_credito_icms_saida: 0.04
+      incluir_ipi_na_base_icms: false
+      calcular_diferenca_ipi: true
+      destaque_saida_referencia: 4%
+    output_label: Operação TTD 410 - Revenda Normal
+    manual_override_template:
+      aliquota_efetiva_icms: null
+      divisor_icms: null
+      aliquota_credito_icms_saida: null
+      incluir_ipi_na_base_icms: null
+      calcular_diferenca_ipi: null
+      observacoes_operacionais: ""
+      observacoes_fiscais: ""
+    notes:
+      - Aplicar quando a finalidade da importação for revenda, salvo orientação fiscal específica em contrário.
+      - O IPI da nacionalização não compõe a base inicial do ICMS por padrão.
+
+  - id: ttd410_industrializacao_vantajosa
+    label: TTD 410 - Industrialização Vantajosa
+    status: active
+    applies_when:
+      finalidade_importacao:
+        - Industrialização
+    defaults:
+      finalidade_importacao: Industrialização
+      aliquota_efetiva_icms: 0.04
+      divisor_icms: 0.90
+      aliquota_credito_icms_saida: 0.10
+      incluir_ipi_na_base_icms: false
+      calcular_diferenca_ipi: true
+      destaque_saida_referencia: 10%
+    output_label: Operação TTD 410 - Industrialização Vantajosa
+    manual_override_template:
+      aliquota_efetiva_icms: null
+      divisor_icms: null
+      aliquota_credito_icms_saida: null
+      incluir_ipi_na_base_icms: null
+      calcular_diferenca_ipi: null
+      observacoes_operacionais: ""
+      observacoes_fiscais: ""
+    notes:
+      - Aplicar quando a finalidade da importação for industrialização e o cenário vantajoso estiver validado pelo operador.
+      - O IPI da nacionalização não compõe a base inicial do ICMS por padrão.
+
+  - id: ttd410_ativo_imobilizado
+    label: TTD 410 - Ativo Imobilizado
+    status: active
+    applies_when:
+      finalidade_importacao:
+        - Ativo Imobilizado
+    defaults:
+      finalidade_importacao: Ativo Imobilizado
+      aliquota_efetiva_icms: 0.014
+      divisor_icms: 0.96
+      aliquota_credito_icms_saida: 0.04
+      incluir_ipi_na_base_icms: true
+      calcular_diferenca_ipi: true
+      destaque_saida_referencia: 4%
+    output_label: Operação TTD 410 - Ativo Imobilizado
+    manual_override_template:
+      aliquota_efetiva_icms: null
+      divisor_icms: null
+      aliquota_credito_icms_saida: null
+      incluir_ipi_na_base_icms: null
+      calcular_diferenca_ipi: null
+      observacoes_operacionais: ""
+      observacoes_fiscais: ""
+    notes:
+      - Aplicar quando a finalidade da importação for ativo imobilizado.
+      - O IPI da nacionalização compõe a base inicial do ICMS nesta condição por padrão.
+
+  - id: ttd410_ex_tarifario_camex_custom
+    label: TTD 410 - EX-Tarifário / CAMEX Customizado
+    status: active
+    applies_when:
+      finalidade_importacao:
+        - Revenda
+        - Industrialização
+        - Ativo Imobilizado
+        - Outro
+    defaults:
+      finalidade_importacao: Outro
+      aliquota_efetiva_icms: null
+      divisor_icms: null
+      aliquota_credito_icms_saida: null
+      incluir_ipi_na_base_icms: false
+      calcular_diferenca_ipi: true
+      destaque_saida_referencia: custom
+    required_manual_inputs:
+      - aliquota_efetiva_icms
+      - divisor_icms
+    output_label: Operação TTD 410 - EX-Tarifário / CAMEX Customizado
+    manual_override_template:
+      aliquota_efetiva_icms: null
+      divisor_icms: null
+      aliquota_credito_icms_saida: null
+      incluir_ipi_na_base_icms: null
+      calcular_diferenca_ipi: null
+      observacoes_operacionais: ""
+      observacoes_fiscais: ""
+    notes:
+      - Usar quando o operador precisar informar alíquota efetiva e divisor customizados.
+      - Nunca assumir valores desse cenário sem validação humana explícita.
+
+reporting_requirements:
+  include_in_final_report:
+    - condicao_icms_selecionada
+    - valores_padrao_aplicados
+    - campos_ajustados_manualmente
+    - justificativa_resumida_da_escolha
